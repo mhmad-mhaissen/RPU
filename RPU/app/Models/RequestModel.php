@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Request extends Model
+class RequestModel extends Model
 {
     use HasFactory;
     protected $table = 'requests';
@@ -23,7 +23,7 @@ class Request extends Model
     }
     public function specializationPerUniversity()
     {
-        return $this->belongsTo(SpecializationPerUniversity::class, 'unis_id');
+        return $this->belongsTo(Specializations_Per_University::class, 'unis_id');
     }
     public function r_type()
     {

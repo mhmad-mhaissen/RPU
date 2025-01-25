@@ -20,6 +20,7 @@ class CreatePaymentsTable extends Migration
             $table->unsignedBigInteger('amount'); 
             $table->enum('payment_status', ['pending', 'completed', 'failed'])->default('pending'); 
             $table->string('currency', 10);
+            $table->boolean('is_used')->default(false);
             $table->string('transaction_id')->unique();
             $table->timestamp('payment_date'); 
             $table->timestamps(); 

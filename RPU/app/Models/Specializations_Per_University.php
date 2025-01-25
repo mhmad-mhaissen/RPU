@@ -33,7 +33,7 @@ class Specializations_Per_University extends Model
     }
     public function request()
     {
-        return $this->hasMany(Request::class, 'unis_id');
+        return $this->hasMany(RequestModel::class, 'unis_id');
     }
 }
  

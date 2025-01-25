@@ -51,6 +51,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+    
+    public function payment_method()
+    {
+        return $this->belongsTo(Payment_method::class, 'default_payment_method_id');
+    }
     public function supportQuestion()
     {
         return $this->hasMany(SupportQuestion::class, 'user_id');

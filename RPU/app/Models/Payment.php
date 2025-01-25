@@ -29,6 +29,6 @@ class Payment extends Model
     }
     public function request()
     {
-        return $this->hasone(Request::class, 'payment_id');
+        return $this->hasone(RequestModel::class, 'payment_id');
     }
 } 

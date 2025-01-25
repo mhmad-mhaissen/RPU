@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('nationality')->nullable();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade')->default(3);
-            $table->foreignId('default_payment_method')->nullable();
+            $table->foreignId('default_payment_method_id')->constrained('payment_methods')->onDelete('cascade')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });

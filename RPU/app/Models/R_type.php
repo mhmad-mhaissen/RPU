@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class R_types extends Model
+class R_type extends Model
 {
     use HasFactory;
     protected $table = 'r_types';
@@ -14,6 +14,6 @@ class R_types extends Model
     ];
     public function request()
     {
-        return $this->hasMany(Request::class,'r_type_id');
+        return $this->hasMany(RequestModel::class,'r_type_id');
     }
 }
