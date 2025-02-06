@@ -34,6 +34,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
         Route::post('calculate', [DashboardController::class, 'calculate'])->name('calculate');
+        
+
         Route::get('rabat', [DashboardController::class, 'rabat'])->name('rabat');
 
         Route::post('adduni', [DashboardController::class, 'adduni'])->name('adduni');
@@ -57,4 +59,4 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
     });
-});
+}); 

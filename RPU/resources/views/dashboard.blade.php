@@ -332,6 +332,7 @@
                 </div>
                 <div class="modal-footer">
                     <form action="{{ route('calculate') }}" method="post">
+                        @csrf
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
                         <button type="submit" class="btn btn-danger" id="sign-out-button">تأكيد</button>
                     </form>

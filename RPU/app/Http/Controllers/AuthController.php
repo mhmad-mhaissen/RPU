@@ -11,21 +11,21 @@ use App\Models\Payment_method;
 class AuthController extends Controller
 {
 
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
-    //admin
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
+    //admin 
 
     public function showAdminLogin()
     {
-        return view('login');
+        return view('login'); 
     }
 
     public function adminLogin(Request $request)
@@ -94,10 +94,10 @@ class AuthController extends Controller
 
         $request->validate([
             'name' => 'nullable|string|max:20',
-            'phone_number' => 'nullable|string|unique:users,phone_number,' . $id,
-            'email' => 'nullable|email|unique:users,email,' . $id,
+            'phone_number' => 'nullable|string|unique:users,phone_number,' . $id, 
+            'email' => 'nullable|email|unique:users,email,' . $id, 
             'birth_date' => 'nullable|date',
-            'password' => 'nullable|string',
+            'password' => 'nullable|string', 
             'nationality' => 'nullable|string|max:50'
         ]);
 
@@ -135,7 +135,7 @@ class AuthController extends Controller
         Auth::logout(); // تسجيل الخروج
         return redirect()->route('loginForm')->with('success', 'Logged out successfully');
     }
-    //user
+    //user   
     //user
     //user
     //user
@@ -158,7 +158,7 @@ class AuthController extends Controller
                 'password' => 'required|string',
                 'nationality' => 'nullable|string|max:50',
             ]);
-
+    
             $phone_number = $request->phone_number;
             $phone_number = preg_replace('/\D/', '', $phone_number);
             if (substr($phone_number, 0, 1) === '0') {
@@ -166,7 +166,7 @@ class AuthController extends Controller
             } else {
                 $phone_number = '+963' . substr($phone_number, 4);
             }
-
+    
             $user = new User();
             $user->name = $validated['name'];
             $user->phone_number = $phone_number;
@@ -177,12 +177,12 @@ class AuthController extends Controller
             $user->role_id = 3;
             $user->default_payment_method_id = 1;
             $user->save();
-
+    
             return response()->json([
                 'message' => 'Account created successfully!',
                 'user' => $user,
             ], 201);
-
+    
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'message' => 'Validation Error',
@@ -190,17 +190,17 @@ class AuthController extends Controller
             ], 422); // 422 Unprocessable Entity
         }
     }
-
+    
     public function login(Request $request)
     {
         try{
             $validated = $request->validate([
-            'identifier' => 'required',
+            'identifier' => 'required', 
             'password' => 'required',
         ]);
 
         $identifier = $validated['identifier'];
-        if (preg_match('/^\d+$/', $identifier)) {
+        if (preg_match('/^\d+$/', $identifier)) { 
             if (substr($identifier, 0, 1) === '0') {
                 $formattedNumber = '+963' . substr($identifier, 1);
             } else {
@@ -236,14 +236,14 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request)
-    {
+    {    
         $request->user()->tokens()->delete();
-
+        
         return response()->json([
             'message' => 'Logged out successfully',
         ], 201); // OK
     }
-
+  
     public function userProfile(Request $request)
     {
         $payment_methods = Payment_method::select('id', 'method')->get();
@@ -260,10 +260,10 @@ class AuthController extends Controller
             $id=$request->user()->id;
             $request->validate([
                 'name' => 'nullable|string|max:20',
-                'phone_number' => 'nullable|string|unique:users,phone_number,' . $id,
-                'email' => 'nullable|email|unique:users,email,' . $id,
+                'phone_number' => 'nullable|string|unique:users,phone_number,' . $id, 
+                'email' => 'nullable|email|unique:users,email,' . $id, 
                 'birth_date' => 'nullable|date',
-                'password' => 'nullable|string',
+                'password' => 'nullable|string', 
                 'nationality' => 'nullable|string|max:50',
                 'default_payment_method_id' =>'nullable|string'
             ]);
@@ -280,7 +280,7 @@ class AuthController extends Controller
                 $user->name = $request->name;
             }
             if ($request->filled('phone_number')) {
-                $user->phone_number = $phone_number;
+                $user->phone_number = $phone_number; 
             }
             if ($request->filled('email')) {
                 $user->email = $request->email;
@@ -289,7 +289,7 @@ class AuthController extends Controller
                 $user->birth_date = $request->birth_date;
             }
             if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
+                $user->password = Hash::make($request->password); 
             }
             if ($request->filled('nationality')) {
                 $user->nationality = $request->nationality;
@@ -336,7 +336,7 @@ class AuthController extends Controller
             ]);
 
             $identifier = $validated['identifier'];
-            if (preg_match('/^\d+$/', $identifier)) {
+            if (preg_match('/^\d+$/', $identifier)) { 
                 if (substr($identifier, 0, 1) === '0') {
                     $formattedNumber = '+963' . substr($identifier, 1);
                 } else {
@@ -377,7 +377,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logout successful',
-        ], 201);
+        ], 201); 
 
     }
 }

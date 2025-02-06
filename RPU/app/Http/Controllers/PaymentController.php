@@ -23,17 +23,17 @@ class PaymentController extends Controller
         }
         $user = $request->user();
         Stripe::setApiKey(config('services.stripe.secret'));
-
+    
         // الحصول على السعر من إعدادات النظام
         $price = Sitting::where('key', 'request_fee')->first();
-
+    
         // التحقق من وجود وسيلة الدفع الخاصة بالمستخدم
         if (!$user->payment_method) {
             return response()->json([
                 'error' => 'No default payment method found for the user.'
             ], 402);
         }
-
+    
         // إنشاء جلسة الدفع عبر Stripe
         $session = Session::create([
             'payment_method_types' => [$user->payment_method->method],
@@ -51,7 +51,7 @@ class PaymentController extends Controller
             'success_url' => url('/api/payment/success?session_id={CHECKOUT_SESSION_ID}'), // تحديث حالة الدفع بعد النجاح
             'cancel_url' => url('/api/payment/cancel?session_id={CHECKOUT_SESSION_ID}'), // تحديث حالة الدفع بعد الإلغاء
         ]);
-
+    
         Payment::create([
             'user_id' => $user->id,
             'payment_method_id' => $user->default_payment_method_id,
@@ -61,13 +61,13 @@ class PaymentController extends Controller
             'transaction_id' => $session->id,
             'payment_date' => now(),
         ]);
-
+    
         return response()->json([
             'checkout_url' => $session->url,
         ]);
     }
-
-
+    
+  
     public function success(Request $request)
     {
         // الحصول على session_id من الطلب

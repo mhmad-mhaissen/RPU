@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Sitting;
 use App\Models\University;
 use App\Models\Specialization;
-use App\Models\RequestModel;
+use App\Models\RequestModel; 
 use App\Models\Payment;
 use App\Models\Grant;
 use App\Models\Specializations_Per_University;
@@ -71,9 +71,9 @@ class DashboardController extends Controller
             ->join('universities', 'specializations__per__universities.university_id', '=', 'universities.id')
             ->join('specializations', 'specializations__per__universities.specialization_id', '=', 'specializations.id')
             ->groupBy(
-                'specializations__per__universities.university_id',
-                'universities.name',
-                'specializations__per__universities.specialization_id',
+                'specializations__per__universities.university_id', 
+                'universities.name', 
+                'specializations__per__universities.specialization_id', 
                 'specializations.name'
             )
             ->orderBy('universities.name')
@@ -84,15 +84,15 @@ class DashboardController extends Controller
 
         $start = Sitting::where('key', 'start date')->first();
         $end = Sitting::where('key', 'end date')->first();
-
+    
         if (!$start || !$end) {
             return view('calculate')->with('result', null); // إرجاع صفحة مع نتيجة فارغة
         }
-
+    
         $startDate = Carbon::parse($start->value);
         $endDate = Carbon::parse($end->value);
         $currentDate = Carbon::now();
-
+    
         // التحقق مما إذا كان التاريخ الحالي بعد تاريخ النهاية
         $result = $currentDate->greaterThan($endDate) ? 1 : 0;
 
@@ -101,7 +101,7 @@ class DashboardController extends Controller
 
         return view('dashboard', compact('requestsData','result',
         'emp','localNumber','startdate','enddate','usersCount','pendingRequests','acceptedRequests',
-        'rejectedRequests','totalPayments','universitiesCount','specializationsCount','topRequests','latestRequests',));
+        'rejectedRequests','totalPayments','universitiesCount','specializationsCount','topRequests','latestRequests',)); 
     }
 
     public function index1()
@@ -113,7 +113,7 @@ class DashboardController extends Controller
         $pendingPayments = Payment::where('payment_status', 'pending')->count();
         $failedPayments = Payment::where('payment_status', 'failed')->count();
         $usedPayments = Payment::where('is_used', true)->count();
-
+    
         // 🔹 **جلب بيانات الدفع حسب التاريخ**
         $paymentsByDate = Payment::select(
             DB::raw('DATE(payment_date) as date'),
@@ -129,7 +129,7 @@ class DashboardController extends Controller
         $labels = $paymentMethods->pluck('method');
         $data = $paymentMethods->pluck('payment_count');
         return view('dashmony', compact('requestFee','labels','data','totalPayments1', 'successfulPayments', 'pendingPayments', 'failedPayments', 'usedPayments',
-        'dates', 'totals','totalPayments'));
+        'dates', 'totals','totalPayments')); 
     }
 
 
@@ -154,6 +154,8 @@ class DashboardController extends Controller
         }
         return back()->with('success', 'Dates updated successfully');
     }
+
+    
     public function empinf(Request $request)
     {
         $admin = User::whereHas('role', function ($query) {
@@ -169,10 +171,10 @@ class DashboardController extends Controller
 
         $request->validate([
             'name' => 'nullable|string|max:20',
-            'phone_number' => 'nullable|string|unique:users,phone_number,' . $admin->id,
-            'email' => 'nullable|email|unique:users,email,' . $admin->id,
+            'phone_number' => 'nullable|string|unique:users,phone_number,' . $admin->id, 
+            'email' => 'nullable|email|unique:users,email,' . $admin->id, 
             'birth_date' => 'nullable|date',
-            'password' => 'nullable|string',
+            'password' => 'nullable|string', 
             'nationality' => 'nullable|string|max:50'
         ]);
         if (!$admin) {
@@ -219,11 +221,11 @@ class DashboardController extends Controller
         }
 
         $admin->save();
-
+    
         return back()->with('success', 'Profile updated successfully');
     }
     }
-
+ 
 
 
 
@@ -233,7 +235,7 @@ class DashboardController extends Controller
             $query->where('role', 'Support Agent');
         })->first();
         $localNumber = '0' . substr($emp->phone_number, 4);
-
+        
 
         $faqQuestions = SupportQuestion::where('is_frequent', true)
         ->where('status', 'answered')
@@ -261,7 +263,7 @@ class DashboardController extends Controller
 
         return view('dashemp', compact('emp','localNumber','faqQuestions','answered', 'unanswered', 'total','dailyAnswers')); // تمرير النتيجة إلى الواجهة
     }
-
+    
 
 
     public function rabat()
@@ -269,7 +271,7 @@ class DashboardController extends Controller
         $universities = University::all();
         $specialization = Specialization::all();
 
-        return view('rabat', compact('universities','specialization'));
+        return view('rabat', compact('universities','specialization'));        
     }
     public function adduni(Request $request)
     {
@@ -290,7 +292,7 @@ class DashboardController extends Controller
         Specialization::create($request->all());
         return back()->with('success', 'University created successfully');
     }
-
+ 
     public function addinf(Request $request)
     {
         // التحقق من صحة البيانات
@@ -323,12 +325,12 @@ class DashboardController extends Controller
     }
 
 
-
+    
     public function edituni($id)
     {
         $university = University::findOrFail($id);
         return view('edituni', compact('university'));
-    }
+    } 
     public function editspe($id)
     {
         $specialization = Specialization::find($id);
@@ -379,7 +381,7 @@ class DashboardController extends Controller
             'price_per_hour' => $request->price_per_hour,
             'num_seats' => $request->num_seats,
         ]);
-
+    
         // إذا كان هناك منحة، نقوم بتحديثها أو إضافتها
         if ($request->grant_seats > 0) {
             $specialization->grant()->updateOrCreate(
@@ -390,7 +392,7 @@ class DashboardController extends Controller
             // إذا لم تكن هناك منحة نلغيها إن كانت موجودة
             $specialization->grant()->delete();
         }
-
+    
         return redirect()->route('infouni', $specialization->university_id)
                          ->with('success', 'Specialization updated successfully!');
     }
@@ -421,33 +423,24 @@ class DashboardController extends Controller
             ->where('university_id', $id)
             ->get(); // جلب جميع التخصصات المرتبطة بالجامعة مع المنح
 
-        return view('information', compact('university','specializations','allspecializations'));
+        return view('information', compact('university','specializations','allspecializations'));        
 
     }
 
-
-
-
-
-
-
-    public function calculate()
+    public function calculate(Request $request)
     {
-
         // إحضار جميع الجامعات مع الاختصاصات والمنح والطلبات
         $universities = University::with('specializationsPerUniversity.grant', 'specializationsPerUniversity.request')->get();
 
         foreach ($universities as $university) {
             foreach ($university->specializationsPerUniversity as $specialization) {
-                // الطلبات المرتبطة بهذا الاختصاص مرتبة حسب المعدل من الأعلى إلى الأدنى
-                $requests = $specialization->request()->where('request_status', 'pending')->orderByDesc('total')->get();
-
                 $acceptedCount = 0;
 
                 // قبول الطلبات ضمن المنحة إذا كانت موجودة
                 if ($specialization->grant) {
                     $grantSeats = $specialization->grant->num_seats;
-                    $grantRequests = $requests->take($grantSeats);
+                    $requests1 = $specialization->request()->where('request_status', 'pending')->where('r_type_id', 2)->orderByDesc('total')->get();
+                    $grantRequests = $requests1->take($grantSeats);
 
                     foreach ($grantRequests as $request) {
                         $request->update(['request_status' => 'Accepted']);
@@ -455,8 +448,13 @@ class DashboardController extends Controller
                     }
 
                     // إزالة الطلبات المقبولة من القائمة
-                    $requests = $requests->slice($grantSeats);
+                    $requests1 = $requests1->slice($grantSeats);
+                    foreach ($requests1 as $request) {
+                        $request->update(['request_status' => 'rejected']);
+                    }
                 }
+                // الطلبات المرتبطة بهذا الاختصاص مرتبة حسب المعدل من الأعلى إلى الأدنى
+                $requests = $specialization->request()->where('request_status', 'pending')->where('r_type_id', 1)->orderByDesc('total')->get();
 
                 // قبول الطلبات المدفوعة حتى اكتمال عدد المقاعد الكلي
                 $remainingSeats = $specialization->num_seats - $acceptedCount;
@@ -474,7 +472,7 @@ class DashboardController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Application process completed successfully.');
+        return redirect('admin/dashboard')->with('success', 'Application process completed successfully.');
     }
 
 }

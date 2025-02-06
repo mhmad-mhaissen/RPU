@@ -17,3 +17,4 @@ class AdminMiddleware
         return redirect()->route('/')->with('error', 'Access denied. Admins only.');
     }
 }
+
