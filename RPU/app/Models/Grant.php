@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Grant extends Model
 {
-    use HasFactory;
+    use HasFactory; //to test the table
     protected $table = 'grants';
 
-   
+
     protected $fillable = [
-        'unis_id', 
+        'unis_id',
         'num_seats',
     ];
 
-    
+
     public function specializationPerUniversity()
     {
         return $this->belongsTo(SpecializationPerUniversity::class, 'unis_id');

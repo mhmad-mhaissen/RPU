@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\University;
 use App\Models\Specialization;
-use App\Models\RequestModel; 
+use App\Models\RequestModel;
 use App\Models\Sitting;
 use App\Models\Payment;
 use App\Models\Grant;
@@ -43,35 +43,35 @@ class UserController extends Controller
     }
     public function search(Request $request)
     {
-        // الحصول على القيم المدخلة من المستخدم
-        $location = $request->input('location');
-        $specialization = $request->input('specialization');
-    
-        // الاستعلام الأساسي مع شروط ديناميكية
+        // الحصول على القيم المدخلة من المستخدم (كمصفوفات)
+        $locations = $request->input('locations', []); // مواقع متعددة
+        $specializations = $request->input('specializations', []); // تخصصات متعددة
+
+        // الاستعلام الأساسي
         $query = University::query();
-    
-        // البحث بناءً على الموقع إذا تم تقديمه
-        if ($location) {
-            $query->where('location', 'LIKE', '%' . $location . '%');
+
+        // البحث بناءً على أكثر من موقع (إذا وُجدت قيم)
+        if (!empty($locations)) {
+            $query->whereIn('location', $locations);
         }
-    
-        // البحث بناءً على التخصص إذا تم تقديمه
-        if ($specialization) {
-            $query->whereHas('specializationsPerUniversity.specialization', function ($subQuery) use ($specialization) {
-                $subQuery->where('name', 'LIKE', '%' . $specialization . '%');
+
+        // البحث بناءً على أكثر من تخصص (إذا وُجدت قيم)
+        if (!empty($specializations)) {
+            $query->whereHas('specializationsPerUniversity.specialization', function ($subQuery) use ($specializations) {
+                $subQuery->whereIn('name', $specializations);
             });
         }
-    
+
         // جلب النتائج مع التخصصات
-        $universities = $query->get();
-    
+        $universities = $query->with('specializationsPerUniversity.specialization')->get();
+
         // إرجاع النتائج
         return response()->json([
             'success' => true,
             'data' => $universities,
         ]);
     }
-    
+
     public function getUniversities()
     {
         $universities = University::all();
@@ -91,17 +91,17 @@ class UserController extends Controller
         }
 
         $university = University::with([
-            'specializationsPerUniversity.specialization', 
+            'specializationsPerUniversity.specialization',
             'specializationsPerUniversity.grant'
         ])
         ->findOrFail($universityId);
-    
+
         $response = [
             'university' => $university->name,
-            'specializations' => [],   
+            'specializations' => [],
             'grants' => [],
         ];
-    
+
         foreach ($university->specializationsPerUniversity as $specializationPerUniversity) {
             $specialization = $specializationPerUniversity->specialization;
             $response['specializations'][] = [
@@ -111,7 +111,7 @@ class UserController extends Controller
                 'price_per_hour' => $specializationPerUniversity->price_per_hour,
                 'num_seats' => $specializationPerUniversity->num_seats,
             ];
-    
+
             if ($specializationPerUniversity->grant) {
                 $response['grants'][] = [
                     'specialization_id'=>$specialization->id,
@@ -122,7 +122,7 @@ class UserController extends Controller
                 ];
             }
         }
-    
+
         return response()->json($response);
     }
     public function submitRequest(Request $request)
@@ -139,25 +139,25 @@ class UserController extends Controller
 
         $payment = Payment::where('user_id', $user->id)
         ->where('payment_status', 'completed')
-        ->where('is_used', false) 
+        ->where('is_used', false)
         ->latest()
         ->first();
-        
+
         if (!$payment) {
             return response()->json([
                 'error' => 'No available payment found. Please complete a payment before submitting a request.',
             ], 402);
         }
-    
-        $jsonData = json_decode($request->getContent(), true); 
+
+        $jsonData = json_decode($request->getContent(), true);
         if ($jsonData) {
-            $request->merge($jsonData); 
+            $request->merge($jsonData);
         }
-       
+
             $validated = $request->validate([
-                'university_id' => 'required|exists:universities,id', 
-                'specialization_id' => 'required|exists:specializations,id', 
-                'r_type_id' => 'required|exists:r_types,id', 
+                'university_id' => 'required|exists:universities,id',
+                'specialization_id' => 'required|exists:specializations,id',
+                'r_type_id' => 'required|exists:r_types,id',
                 'certificate_country' => 'required|string|in:Syria,Other',
                 'total' => 'required|numeric',
                 'personal_id' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048', // صورة الهوية
@@ -177,16 +177,16 @@ class UserController extends Controller
                 if (!$gr) {
                     return response()->json([
                         'error' => 'The specified specialization is not available at this university as grant',
-                    ], 404); 
+                    ], 404);
                 }
             }
 
             $existingRequest = RequestModel::whereHas('payment', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
-            ->where('unis_id', $unis->id)  
-            ->where('r_type_id', $validated['r_type_id'])  
-            ->where('request_status', 'pending')  
+            ->where('unis_id', $unis->id)
+            ->where('r_type_id', $validated['r_type_id'])
+            ->where('request_status', 'pending')
             ->first();
 
             if ($existingRequest) {
@@ -216,7 +216,7 @@ class UserController extends Controller
                 'certificate_country' => $validated['certificate_country'],
                 'total' => $validated['total'],
             ]);
-            
+
 
             $payment->is_used=true;
             $payment->update();
@@ -236,9 +236,9 @@ class UserController extends Controller
         try {
             $user = $request->user();
             $requests = RequestModel::with([
-                'specializationPerUniversity.university', 
-                'specializationPerUniversity.specialization', 
-                'r_type', 
+                'specializationPerUniversity.university',
+                'specializationPerUniversity.specialization',
+                'r_type',
                 'payment.payment_method'
             ])->whereHas('payment', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
